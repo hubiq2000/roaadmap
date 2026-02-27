@@ -1,0 +1,1109 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DevPath 2026</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#0e0e10;--bg2:#141416;--bg3:#1a1a1e;--bg4:#222228;
+  --border:#2a2a32;--border2:#333340;
+  --text:#e8e8f0;--muted:#6b6b80;--muted2:#4a4a58;
+  --a1:#7c6fff;--a1l:#a594ff;--a1bg:#7c6fff18;
+  --a2:#f97316;--a2l:#fb923c;--a2bg:#f9731618;
+  --green:#22c55e;--yellow:#eab308;--red:#f43f5e;
+  --blue:#3b82f6;--pink:#ec4899;--teal:#14b8a6;
+}
+html,body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");pointer-events:none;z-index:9999;opacity:.4}
+
+/* ── TOPBAR ── */
+.topbar{position:sticky;top:0;z-index:200;background:rgba(14,14,16,.94);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);padding:0 20px;display:flex;align-items:center;gap:0}
+.logo{font-family:'Syne',sans-serif;font-size:13px;font-weight:800;letter-spacing:.08em;color:var(--text);margin-right:24px;flex-shrink:0}
+.logo span{color:var(--a1)}
+.tabs{display:flex;gap:2px;flex:1}
+.tab-btn{padding:13px 18px;font-family:'DM Sans',sans-serif;font-size:12.5px;font-weight:600;color:var(--muted);background:none;border:none;cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;white-space:nowrap}
+.tab-btn:hover{color:var(--text)}
+.tab-btn.ap{color:var(--a1l);border-bottom-color:var(--a1)}
+.tab-btn.apr{color:var(--a2l);border-bottom-color:var(--a2)}
+.topbar-right{margin-left:auto;display:flex;align-items:center;gap:14px;flex-shrink:0}
+.notif-btn{background:none;border:1px solid var(--border2);color:var(--muted);font-size:11px;padding:4px 9px;border-radius:6px;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s;white-space:nowrap}
+.notif-btn:hover{border-color:var(--a1);color:var(--a1l)}
+.notif-btn.granted{border-color:#22c55e44;color:var(--green)}
+.clock-widget{text-align:right}
+.clock-time{font-family:'DM Mono',monospace;font-size:15px;font-weight:500;color:var(--text);letter-spacing:.04em}
+.clock-date{font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);margin-top:1px}
+
+/* ── PANES ── */
+.pane{display:none}
+.pane.show{display:block}
+
+/* ── SHARED SECTION HDR ── */
+.shdr{padding:20px 24px 0;display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.shdr-line{flex:1;height:1px;background:var(--border)}
+.shdr-txt{font-family:'Syne',sans-serif;font-size:10.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);white-space:nowrap}
+
+/* ────────────────────────────────────────────────
+   PLAN TAB
+──────────────────────────────────────────────── */
+.plan-hero{padding:36px 24px 28px;border-bottom:1px solid var(--border);position:relative;overflow:hidden}
+.plan-hero::before{content:'';position:absolute;top:-80px;left:-80px;width:480px;height:480px;background:radial-gradient(circle,var(--a1bg) 0%,transparent 65%);pointer-events:none}
+.plan-hero-lbl{font-family:'DM Mono',monospace;font-size:9.5px;font-weight:500;letter-spacing:.14em;color:var(--a1);text-transform:uppercase;margin-bottom:10px}
+.plan-hero-ttl{font-family:'Syne',sans-serif;font-size:28px;font-weight:800;line-height:1.1;margin-bottom:8px}
+.plan-hero-ttl em{font-style:normal;color:var(--a1l)}
+.plan-hero-sub{font-size:13px;color:var(--muted);max-width:540px;line-height:1.6}
+
+/* DAILY DASHBOARD */
+.daily-wrap{padding:0 24px 24px;display:grid;grid-template-columns:1fr 1fr;gap:14px;border-bottom:1px solid var(--border)}
+@media(max-width:700px){.daily-wrap{grid-template-columns:1fr}}
+
+/* Clock card */
+.clock-card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:18px 20px;display:flex;flex-direction:column;gap:6px}
+.clock-card-time{font-family:'DM Mono',monospace;font-size:38px;font-weight:500;color:var(--text);letter-spacing:.04em;line-height:1}
+.clock-card-date{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:.04em}
+.clock-card-day{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:var(--a1l);margin-top:4px}
+.streak-row{display:flex;align-items:center;gap:8px;margin-top:8px}
+.streak-badge{font-size:11px;font-weight:600;padding:3px 9px;border-radius:6px;background:var(--a1bg);color:var(--a1l);font-family:'DM Mono',monospace}
+.streak-txt{font-size:11px;color:var(--muted)}
+
+/* Checklist card */
+.checklist-card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:18px 20px}
+.checklist-ttl{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between}
+.checklist-prog{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted)}
+.checklist-bar{height:3px;background:var(--bg4);border-radius:2px;overflow:hidden;margin-bottom:12px}
+.checklist-bar-fill{height:100%;background:var(--green);border-radius:2px;transition:width .4s cubic-bezier(.16,1,.3,1)}
+.check-item{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--border);cursor:pointer;transition:opacity .15s;user-select:none}
+.check-item:last-child{border-bottom:none;padding-bottom:0}
+.check-item:hover{opacity:.85}
+.check-box{width:18px;height:18px;border-radius:5px;border:1.5px solid var(--border2);background:transparent;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .2s;font-size:11px}
+.check-item.done .check-box{background:var(--green);border-color:var(--green);color:#fff}
+.check-item.done .check-lbl{text-decoration:line-through;color:var(--muted2)}
+.check-lbl{font-size:12px;color:var(--text);flex:1;line-height:1.3}
+.check-time{font-family:'DM Mono',monospace;font-size:9px;color:var(--muted2)}
+.check-reset{font-size:10px;color:var(--muted2);background:none;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;margin-top:10px;padding:4px 0;transition:color .15s;display:block;width:100%;text-align:center}
+.check-reset:hover{color:var(--muted)}
+
+/* Methods */
+.methods-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px;padding:0 24px 24px;border-bottom:1px solid var(--border)}
+.mc{background:var(--bg2);border:1px solid var(--border);border-radius:11px;padding:15px 16px;transition:border-color .2s,transform .2s;animation:fadeUp .4s both}
+.mc:hover{border-color:var(--border2);transform:translateY(-2px)}
+.mc-icon{font-size:20px;margin-bottom:8px}
+.mc-title{font-family:'Syne',sans-serif;font-size:12.5px;font-weight:700;margin-bottom:4px}
+.mc-desc{font-size:11.5px;color:var(--muted);line-height:1.55}
+.mc-tag{display:inline-block;margin-top:7px;font-size:9.5px;font-weight:600;padding:2px 7px;border-radius:4px;font-family:'DM Mono',monospace}
+
+/* Week schedule */
+.week-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;padding:0 24px 24px}
+@media(max-width:600px){.week-grid{grid-template-columns:repeat(4,1fr)}}
+.day-card{background:var(--bg2);border:1px solid var(--border);border-radius:9px;padding:10px 8px;text-align:center;animation:fadeUp .4s both}
+.day-name{font-family:'Syne',sans-serif;font-size:10px;font-weight:700;letter-spacing:.05em;color:var(--muted);margin-bottom:6px;text-transform:uppercase}
+.day-emoji{font-size:16px;margin-bottom:5px}
+.day-focus{font-size:10px;color:var(--text);font-weight:500;margin-bottom:4px;line-height:1.3}
+.day-time{font-family:'DM Mono',monospace;font-size:9px;color:var(--a1);background:var(--a1bg);border-radius:4px;padding:2px 5px;display:inline-block}
+.day-card.rest{opacity:.5}
+
+/* Codewars path */
+.cw-path{display:flex;align-items:center;flex-wrap:wrap;gap:7px;padding:0 24px 24px}
+.cw-step{background:var(--bg2);border:1px solid var(--border2);border-radius:9px;padding:10px 14px;text-align:center;min-width:120px}
+.cw-kyu{font-family:'DM Mono',monospace;font-size:20px;font-weight:500;margin-bottom:2px}
+.cw-label{font-size:10px;color:var(--muted);margin-bottom:4px}
+.cw-time{font-size:9px;color:var(--muted2);font-family:'DM Mono',monospace}
+.cw-arrow{font-size:18px;color:var(--muted2)}
+
+/* Timeline */
+.timeline{padding:0 24px 32px;position:relative}
+.timeline::before{content:'';position:absolute;left:39px;top:0;bottom:0;width:1px;background:var(--border)}
+.phase{position:relative;margin-bottom:6px;animation:fadeUp .35s both}
+.ph-hdr{display:flex;align-items:flex-start;cursor:pointer;padding:12px 14px 12px 0}
+.ph-dot{width:26px;height:26px;border-radius:50%;border:2px solid var(--border2);background:var(--bg2);display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0;margin-left:26px;margin-right:16px;margin-top:2px;position:relative;z-index:1;transition:all .2s}
+.phase.done .ph-dot{background:var(--green);border-color:var(--green);color:#fff}
+.phase.active .ph-dot{border-color:var(--a1);box-shadow:0 0 0 4px var(--a1bg)}
+.ph-meta{flex:1}
+.ph-week{font-family:'DM Mono',monospace;font-size:9.5px;color:var(--muted);margin-bottom:2px}
+.ph-name{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;margin-bottom:5px}
+.ph-tags{display:flex;gap:4px;flex-wrap:wrap}
+.ptag{font-size:9.5px;font-weight:600;padding:2px 6px;border-radius:3px;font-family:'DM Mono',monospace}
+.ph-chev{font-size:14px;color:var(--muted2);margin-top:5px;flex-shrink:0;transition:transform .25s}
+.phase.open .ph-chev{transform:rotate(90deg)}
+.ph-body{display:none;margin-left:68px;border-left:2px dashed var(--border);padding-left:18px;padding-bottom:20px}
+.phase.open .ph-body{display:block}
+.res-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:7px;margin-top:12px}
+.rc{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:10px 12px;position:relative;overflow:hidden;transition:border-color .2s}
+.rc:hover{border-color:var(--border2)}
+.rc::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+.rc.type-course::before{background:var(--blue)}
+.rc.type-ide::before{background:var(--a1)}
+.rc.type-practice::before{background:var(--pink)}
+.rc.type-tool::before{background:var(--teal)}
+.rc-name{font-size:11.5px;font-weight:600;margin-bottom:2px;line-height:1.3}
+.rc-src{font-size:10px;color:var(--muted);margin-bottom:5px}
+.rc-bdgs{display:flex;gap:3px;flex-wrap:wrap}
+.rb{font-size:9px;font-weight:600;padding:1px 5px;border-radius:3px}
+.rb-free{background:#14532d22;color:#4ade80;border:1px solid #14532d44}
+.rb-pack{background:#7c6fff22;color:var(--a1l);border:1px solid #7c6fff44}
+.rb-paid{background:#f9731622;color:var(--a2l);border:1px solid #f9731644}
+.ph-proj{margin-top:12px;padding:9px 13px;background:var(--bg4);border-radius:7px;border-left:3px solid var(--a1)}
+.ph-proj-lbl{font-size:9px;color:var(--a1);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.07em;margin-bottom:2px}
+.ph-proj-val{font-size:11.5px;color:var(--text);font-weight:600}
+
+/* ────────────────────────────────────────────────
+   PROJECTS TAB
+──────────────────────────────────────────────── */
+.proj-hero{padding:34px 24px 24px;border-bottom:1px solid var(--border);position:relative;overflow:hidden}
+.proj-hero::before{content:'';position:absolute;top:-80px;right:-80px;width:480px;height:480px;background:radial-gradient(circle,var(--a2bg) 0%,transparent 65%);pointer-events:none}
+.proj-hero-lbl{font-family:'DM Mono',monospace;font-size:9.5px;font-weight:500;letter-spacing:.14em;color:var(--a2);text-transform:uppercase;margin-bottom:10px}
+.proj-hero-ttl{font-family:'Syne',sans-serif;font-size:26px;font-weight:800;line-height:1.15;margin-bottom:8px}
+.proj-hero-ttl em{font-style:normal;color:var(--a2l)}
+.proj-hero-sub{font-size:12.5px;color:var(--muted);max-width:500px;line-height:1.6}
+
+.earn-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:9px;padding:0 24px 20px}
+.earn-card{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:13px 15px;animation:fadeUp .4s both}
+.earn-ico{font-size:18px;margin-bottom:5px}
+.earn-name{font-size:10.5px;font-weight:600;color:var(--muted);margin-bottom:2px}
+.earn-val{font-family:'Syne',sans-serif;font-size:16px;font-weight:800;color:var(--yellow);margin-bottom:2px}
+.earn-note{font-size:9.5px;color:var(--muted2);line-height:1.4}
+
+.proj-filters{padding:11px 24px;border-bottom:1px solid var(--border);background:var(--bg2);display:flex;gap:5px;flex-wrap:wrap;align-items:center}
+.pfl{font-size:9px;color:var(--muted);margin-right:2px;font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.06em}
+.pfb{padding:3px 9px;border-radius:20px;border:1px solid var(--border2);background:transparent;color:var(--muted);font-size:10px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s}
+.pfb:hover{color:var(--text);border-color:var(--border2)}
+.pfb.pon{background:var(--a2);color:#fff;border-color:var(--a2)}
+
+/* Kanban */
+.kanban{display:flex;gap:9px;padding:14px 24px 32px;overflow-x:auto;align-items:flex-start;min-height:60vh}
+.kanban::-webkit-scrollbar{height:4px}
+.kanban::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:2px}
+.k-col{min-width:230px;width:230px;flex-shrink:0}
+.k-col-hdr{display:flex;align-items:center;justify-content:space-between;padding:7px 10px;border-radius:8px;margin-bottom:7px;border:1px solid transparent}
+.k-col-ttl{font-size:10.5px;font-weight:700;font-family:'Syne',sans-serif}
+.k-col-cnt{width:17px;height:17px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:8.5px;font-weight:700;color:#fff;flex-shrink:0}
+.k-card{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:10px 11px;margin-bottom:6px;cursor:pointer;transition:all .18s;position:relative;overflow:hidden}
+.k-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;opacity:0;transition:opacity .18s}
+.k-card:hover{border-color:var(--border2);transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.35)}
+.k-card:hover::before{opacity:1}
+.k-card-ttl{font-size:11px;font-weight:600;line-height:1.4;margin-bottom:6px;color:var(--text)}
+.k-stage-pill{display:inline-flex;align-items:center;gap:4px;font-size:9px;font-weight:700;padding:2px 7px;border-radius:4px;margin-bottom:6px;font-family:'DM Mono',monospace}
+.k-badges{display:flex;gap:3px;flex-wrap:wrap;margin-bottom:6px}
+.kb{font-size:8.5px;font-weight:600;padding:2px 5px;border-radius:3px}
+.earn-kb{font-size:8px;font-weight:700;padding:2px 5px;border-radius:3px;background:#fef9c318;color:#eab308;border:1px solid #eab30835}
+.k-ft{display:flex;justify-content:space-between;align-items:center}
+.k-dt{font-size:8.5px;color:var(--muted);font-family:'DM Mono',monospace}
+.k-tags{display:flex;gap:3px}
+.k-tag{font-size:8px;padding:1px 4px;background:var(--bg4);color:var(--muted);border-radius:3px;font-weight:500}
+.k-empty{text-align:center;padding:20px 0;font-size:10.5px;color:var(--muted2)}
+
+/* ── MODAL ── */
+.ov{position:fixed;inset:0;background:rgba(0,0,0,.65);backdrop-filter:blur(8px);z-index:500;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .22s}
+.ov.open{opacity:1;pointer-events:all}
+.modal{background:var(--bg2);border:1px solid var(--border2);border-radius:15px;padding:24px;width:520px;max-width:93vw;max-height:86vh;overflow-y:auto;box-shadow:0 32px 80px rgba(0,0,0,.55);transform:translateY(14px) scale(.96);transition:transform .28s cubic-bezier(.16,1,.3,1)}
+.ov.open .modal{transform:translateY(0) scale(1)}
+.m-hdr{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:12px}
+.m-ttl{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;color:var(--text);line-height:1.3;flex:1}
+.m-x{background:none;border:none;cursor:pointer;font-size:17px;color:var(--muted);padding:0;line-height:1;flex-shrink:0;transition:color .15s}
+.m-x:hover{color:var(--text)}
+.m-bdg{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:12px}
+
+/* prereq block */
+.m-prereq{background:var(--bg3);border:1px solid var(--border2);border-radius:9px;padding:12px 14px;margin-bottom:12px}
+.m-prereq-ttl{font-size:9px;font-weight:700;color:var(--a1l);text-transform:uppercase;letter-spacing:.08em;font-family:'DM Mono',monospace;margin-bottom:8px}
+.prereq-stage{display:inline-flex;align-items:center;gap:5px;background:var(--bg4);border:1px solid var(--border2);border-radius:6px;padding:4px 10px;margin:2px;font-size:10.5px;font-weight:600;color:var(--text)}
+.prereq-stage .ps-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.prereq-skills{margin-top:8px;padding-top:8px;border-top:1px solid var(--border)}
+.prereq-skill-lbl{font-size:9px;color:var(--muted);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px}
+.skill-chip{display:inline-block;font-size:9.5px;font-weight:600;padding:2px 7px;border-radius:4px;background:var(--bg4);border:1px solid var(--border2);color:var(--muted);margin:2px;font-family:'DM Mono',monospace}
+
+.m-earn-box{background:#fef9c308;border:1px solid #eab30828;border-radius:9px;padding:12px 14px;margin-bottom:12px}
+.m-earn-ttl{font-size:9px;font-weight:700;color:var(--yellow);text-transform:uppercase;letter-spacing:.07em;font-family:'DM Mono',monospace;margin-bottom:5px}
+.m-earn-txt{font-size:12px;color:#d4c58a;line-height:1.65}
+.m-info{background:var(--bg3);border-radius:9px;padding:9px 12px;margin-bottom:12px}
+.m-info-l{font-size:9px;color:var(--muted);margin-bottom:2px;font-weight:500}
+.m-info-v{font-size:11.5px;font-weight:600;color:var(--text)}
+.m-info-u{font-size:9.5px;color:var(--blue);text-decoration:none;display:block;margin-top:2px;font-family:'DM Mono',monospace}
+.m-info-u:hover{text-decoration:underline}
+.m-sl{font-size:9px;color:var(--muted);margin-bottom:5px;font-weight:500}
+.m-sbtns{display:flex;gap:5px;flex-wrap:wrap}
+.sbtn{padding:4px 11px;border-radius:20px;border:1.5px solid var(--border2);background:transparent;color:var(--muted);font-size:9.5px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s}
+.sbtn.act{border-color:currentColor;background:currentColor;color:#0e0e10!important}
+.m-dt{font-size:9px;color:var(--muted2);margin-top:10px;font-family:'DM Mono',monospace}
+
+/* ── ANIMATIONS ── */
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:3px}
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="logo">DEV<span>PATH</span></div>
+  <div class="tabs">
+    <button class="tab-btn ap" onclick="switchTab('plan',this)">📚 Plan Nauki</button>
+    <button class="tab-btn" onclick="switchTab('proj',this)">🚀 Projekty & Biznes</button>
+  </div>
+  <div class="topbar-right">
+    <button class="notif-btn" id="notif-btn" onclick="requestNotif()">🔔 Powiadomienia</button>
+    <div class="clock-widget">
+      <div class="clock-time" id="tb-time">--:--:--</div>
+      <div class="clock-date" id="tb-date">---</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     PANE 1: PLAN NAUKI
+══════════════════════════════════════════════ -->
+<div class="pane show" id="pane-plan">
+
+  <div class="plan-hero">
+    <div class="plan-hero-lbl">⚡ Web Developer Roadmap 2026</div>
+    <h1 class="plan-hero-ttl">Twój plan nauki —<br><em>od zera do Junior Dev</em></h1>
+    <p class="plan-hero-sub">Metody oparte na nauce: spaced repetition, project-based learning, active recall. Zaznaczaj codzienne zadania — streak motywuje bardziej niż plan.</p>
+  </div>
+
+  <!-- DAILY DASHBOARD -->
+  <div class="shdr" style="padding-top:20px">
+    <div class="shdr-txt">📅 Dzisiaj</div>
+    <div class="shdr-line"></div>
+  </div>
+  <div class="daily-wrap">
+
+    <!-- BIG CLOCK -->
+    <div class="clock-card">
+      <div class="clock-card-time" id="big-time">00:00:00</div>
+      <div class="clock-card-date" id="big-date">Piątek, 27 lutego 2026</div>
+      <div class="clock-card-day" id="big-day">Dobry wieczór! 🌙</div>
+      <div class="streak-row">
+        <span class="streak-badge" id="streak-badge">🔥 0 dni</span>
+        <span class="streak-txt" id="streak-txt">Zacznij dzisiaj!</span>
+      </div>
+    </div>
+
+    <!-- DAILY CHECKLIST -->
+    <div class="checklist-card">
+      <div class="checklist-ttl">
+        ✅ Daily Checklist
+        <span class="checklist-prog" id="cl-prog">0/7</span>
+      </div>
+      <div class="checklist-bar"><div class="checklist-bar-fill" id="cl-bar" style="width:0%"></div></div>
+      <div id="checklist-items"></div>
+      <button class="check-reset" onclick="resetChecklist()">↺ Resetuj na jutro</button>
+    </div>
+
+  </div>
+
+  <!-- METODY NAUKI -->
+  <div class="shdr">
+    <div class="shdr-txt">🧠 Metody nauki</div>
+    <div class="shdr-line"></div>
+  </div>
+  <div class="methods-grid">
+    <div class="mc" style="animation-delay:.05s">
+      <div class="mc-icon">🔁</div>
+      <div class="mc-title">Spaced Repetition</div>
+      <div class="mc-desc">Powtarzaj materiał w rosnących odstępach. Mózg zapamiętuje to co „prawie zapomniał". Anki dla skrótów JS, CSS, WebStorm.</div>
+      <span class="mc-tag" style="background:var(--a1bg);color:var(--a1l)">Anki · 10 min/dzień</span>
+    </div>
+    <div class="mc" style="animation-delay:.10s">
+      <div class="mc-icon">🏗️</div>
+      <div class="mc-title">Project-Based Learning</div>
+      <div class="mc-desc">Każda faza kończy się projektem. Uczysz się szybciej gdy masz cel — „muszę to zbudować", nie „muszę to przeczytać".</div>
+      <span class="mc-tag" style="background:#22c55e18;color:#4ade80">Projekt → Deploy → Portfolio</span>
+    </div>
+    <div class="mc" style="animation-delay:.15s">
+      <div class="mc-icon">⚔️</div>
+      <div class="mc-title">Active Recall – Codewars</div>
+      <div class="mc-desc">3 katy dziennie minimum. Nie czytaj teorii — walcz z problemem. Mózg buduje połączenia przez wysiłek, nie przez czytanie.</div>
+      <span class="mc-tag" style="background:#ec489918;color:#f472b6">3 katy · codziennie</span>
+    </div>
+    <div class="mc" style="animation-delay:.20s">
+      <div class="mc-icon">🎬</div>
+      <div class="mc-title">Video + Kod równolegle</div>
+      <div class="mc-desc">Zatrzymaj film co 5 min, wróć 30s, odtwórz własnym kodem. Frontend Masters z WebStorm obok — nigdy sam video.</div>
+      <span class="mc-tag" style="background:#3b82f618;color:#60a5fa">1× oglądaj · 3× koduj</span>
+    </div>
+    <div class="mc" style="animation-delay:.25s">
+      <div class="mc-icon">📝</div>
+      <div class="mc-title">Build In Public</div>
+      <div class="mc-desc">Commit codziennie — nawet 5 linii. Zielona siatka GitHub = Twoje CV in real-time. Pisz devlogi o tym czego się uczysz.</div>
+      <span class="mc-tag" style="background:#14b8a618;color:#2dd4bf">GitHub · 1 commit/dzień</span>
+    </div>
+    <div class="mc" style="animation-delay:.30s">
+      <div class="mc-icon">🤖</div>
+      <div class="mc-title">AI jako tutor, nie odpowiedź</div>
+      <div class="mc-desc">Copilot i JetBrains Junie do wyjaśnień i refaktoringu — nie do generowania za Ciebie. Najpierw napisz sam, potem zapytaj AI.</div>
+      <span class="mc-tag" style="background:var(--a1bg);color:var(--a1l)">Copilot Pro · Junie</span>
+    </div>
+  </div>
+
+  <!-- HARMONOGRAM -->
+  <div class="shdr">
+    <div class="shdr-txt">📅 Harmonogram tygodniowy</div>
+    <div class="shdr-line"></div>
+  </div>
+  <div class="week-grid">
+    <div class="day-card" style="animation-delay:.05s"><div class="day-name">Pon</div><div class="day-emoji">📖</div><div class="day-focus">Teoria + nowy kurs</div><div class="day-time">1.5–2h</div></div>
+    <div class="day-card" style="animation-delay:.10s"><div class="day-name">Wt</div><div class="day-emoji">⚔️</div><div class="day-focus">Codewars + ćwiczenia</div><div class="day-time">1.5h</div></div>
+    <div class="day-card" style="animation-delay:.15s"><div class="day-name">Śr</div><div class="day-emoji">🏗️</div><div class="day-focus">Projekt własny</div><div class="day-time">2h</div></div>
+    <div class="day-card" style="animation-delay:.20s"><div class="day-name">Czw</div><div class="day-emoji">🔁</div><div class="day-focus">Anki + nowy materiał</div><div class="day-time">1.5–2h</div></div>
+    <div class="day-card" style="animation-delay:.25s"><div class="day-name">Pt</div><div class="day-emoji">🚀</div><div class="day-focus">Projekt + deploy</div><div class="day-time">2h</div></div>
+    <div class="day-card" style="animation-delay:.30s"><div class="day-name">Sob</div><div class="day-emoji">💪</div><div class="day-focus">Deep work + review</div><div class="day-time">3–4h</div></div>
+    <div class="day-card rest" style="animation-delay:.35s"><div class="day-name">Nd</div><div class="day-emoji">😴</div><div class="day-focus">Odpoczynek / czytanie</div><div class="day-time">0–1h</div></div>
+  </div>
+
+  <!-- CODEWARS -->
+  <div class="shdr">
+    <div class="shdr-txt">⚔️ Ścieżka Codewars</div>
+    <div class="shdr-line"></div>
+  </div>
+  <div class="cw-path">
+    <div class="cw-step" style="border-color:#52525b"><div class="cw-kyu" style="color:#a1a1aa">8 kyu</div><div class="cw-label">Starter</div><div class="cw-time">Tydz. 1–2</div></div>
+    <div class="cw-arrow">→</div>
+    <div class="cw-step" style="border-color:#a16207"><div class="cw-kyu" style="color:#fbbf24">7 kyu</div><div class="cw-label">Podstawy JS</div><div class="cw-time">Tydz. 2–4</div></div>
+    <div class="cw-arrow">→</div>
+    <div class="cw-step" style="border-color:#1d4ed8"><div class="cw-kyu" style="color:#60a5fa">6 kyu</div><div class="cw-label">Logika + Arrays</div><div class="cw-time">Mies. 2–3</div></div>
+    <div class="cw-arrow">→</div>
+    <div class="cw-step" style="border-color:#7e22ce"><div class="cw-kyu" style="color:#c084fc">5 kyu</div><div class="cw-label">OOP + Regex</div><div class="cw-time">Mies. 3–5</div></div>
+    <div class="cw-arrow">→</div>
+    <div class="cw-step" style="border-color:#15803d"><div class="cw-kyu" style="color:#4ade80">4 kyu</div><div class="cw-label">Algorytmy</div><div class="cw-time">Mies. 5–8</div></div>
+    <div class="cw-arrow">→</div>
+    <div class="cw-step" style="border-color:#be123c"><div class="cw-kyu" style="color:#fb7185">3 kyu</div><div class="cw-label">DP + Graphs</div><div class="cw-time">Mies. 8–12</div></div>
+    <div class="cw-arrow">→</div>
+    <div class="cw-step" style="border-color:var(--a2);box-shadow:0 0 14px var(--a2bg)"><div class="cw-kyu" style="color:var(--a2l)">LeetCode</div><div class="cw-label">50 Easy → rekrutacja</div><div class="cw-time">Mies. 10+</div></div>
+  </div>
+
+  <!-- TIMELINE -->
+  <div class="shdr">
+    <div class="shdr-txt">🗓️ Fazy nauki</div>
+    <div class="shdr-line"></div>
+  </div>
+  <div class="timeline" id="timeline"></div>
+
+</div><!-- /pane-plan -->
+
+<!-- ══════════════════════════════════════════════
+     PANE 2: PROJEKTY
+══════════════════════════════════════════════ -->
+<div class="pane" id="pane-proj">
+  <div class="proj-hero">
+    <div class="proj-hero-lbl">💰 Projekty zarobkowe</div>
+    <h1 class="proj-hero-ttl">Buduj rzeczy,<br><em>które zarabiają</em></h1>
+    <p class="proj-hero-sub">Każdy projekt pokazuje wymagany Stage, umiejętności które musisz opanować oraz konkretną strategię monetyzacji. Kliknij kartę aby zobaczyć wszystko.</p>
+  </div>
+
+  <div class="shdr" style="padding-top:18px">
+    <div class="shdr-txt">💸 Potencjał zarobkowy</div>
+    <div class="shdr-line"></div>
+  </div>
+  <div class="earn-row">
+    <div class="earn-card" style="animation-delay:.05s"><div class="earn-ico">📈</div><div class="earn-name">AdSense (rok+)</div><div class="earn-val">$100–500/mies</div><div class="earn-note">Toolbox + kalkulatory + blog</div></div>
+    <div class="earn-card" style="animation-delay:.10s"><div class="earn-ico">🤝</div><div class="earn-name">Freelance (start)</div><div class="earn-val">$200–800/zlec</div><div class="earn-note">Landing pages, wizytówki, sklepy</div></div>
+    <div class="earn-card" style="animation-delay:.15s"><div class="earn-ico">🏪</div><div class="earn-name">Szablony Gumroad</div><div class="earn-val">$500–3000</div><div class="earn-note">Jednorazowo, pasywnie</div></div>
+    <div class="earn-card" style="animation-delay:.20s"><div class="earn-ico">🔗</div><div class="earn-name">Afiliacja</div><div class="earn-val">$20–80/lead</div><div class="earn-note">Ubezpieczenia, suplementy, banki</div></div>
+    <div class="earn-card" style="animation-delay:.25s"><div class="earn-ico">⚡</div><div class="earn-name">Micro-SaaS</div><div class="earn-val">$450+ MRR</div><div class="earn-note">50 klientów × $9/mies</div></div>
+  </div>
+
+  <div class="proj-filters">
+    <span class="pfl">Kategoria:</span>
+    <button class="pfb pon" data-cat="all">Wszystkie</button>
+    <button class="pfb" data-cat="now">🔥 Teraz</button>
+    <button class="pfb" data-cat="adsense">📈 AdSense</button>
+    <button class="pfb" data-cat="health">💊 Zdrowie</button>
+    <button class="pfb" data-cat="biz">💼 Biznes</button>
+    <button class="pfb" data-cat="freelance">🤝 Freelance</button>
+    <button class="pfb" data-cat="saas">⚡ SaaS</button>
+    <span class="pfl" style="margin-left:10px">Status:</span>
+    <button class="pfb pon" data-st="all">Wszystkie</button>
+    <button class="pfb" data-st="not-started">Nie rozpoczęte</button>
+    <button class="pfb" data-st="in-progress">W trakcie</button>
+    <button class="pfb" data-st="completed">Ukończone</button>
+  </div>
+  <div class="kanban" id="kanban"></div>
+</div>
+
+<!-- MODAL -->
+<div class="ov" id="ov" onclick="closeMod(event)">
+  <div class="modal">
+    <div class="m-hdr"><div class="m-ttl" id="m-ttl"></div><button class="m-x" onclick="closeModD()">✕</button></div>
+    <div class="m-bdg" id="m-bdg"></div>
+    <div class="m-prereq" id="m-prereq">
+      <div class="m-prereq-ttl">📋 Wymagania – kiedy możesz zacząć?</div>
+      <div id="m-prereq-stages"></div>
+      <div class="prereq-skills" id="m-prereq-skills-wrap">
+        <div class="prereq-skill-lbl">Umiejętności których potrzebujesz:</div>
+        <div id="m-prereq-skills"></div>
+      </div>
+    </div>
+    <div id="m-earn-wrap"><div class="m-earn-box"><div class="m-earn-ttl">💰 Strategia zarobkowa</div><div class="m-earn-txt" id="m-earn-txt"></div></div></div>
+    <div class="m-info"><div class="m-info-l">Stack / Platforma</div><div class="m-info-v" id="m-src"></div><a class="m-info-u" id="m-url" href="#" target="_blank" rel="noreferrer"></a></div>
+    <div class="m-sl">Zmień status</div>
+    <div class="m-sbtns" id="m-sbtns"></div>
+    <div class="m-dt" id="m-dt"></div>
+  </div>
+</div>
+
+<script>
+/* ══════════════════════════════════════════════════
+   CLOCK & DATE
+══════════════════════════════════════════════════ */
+const PL_DAYS=["Niedziela","Poniedziałek","Wtorek","Środa","Czwartek","Piątek","Sobota"];
+const PL_MONTHS=["stycznia","lutego","marca","kwietnia","maja","czerwca","lipca","sierpnia","września","października","listopada","grudnia"];
+
+function greet(){
+  const h=new Date().getHours();
+  if(h<6)return"Dobra noc! 🌙";
+  if(h<12)return"Dzień dobry! ☀️";
+  if(h<18)return"Dobre południe! 🌤️";
+  return"Dobry wieczór! 🌙";
+}
+
+function pad(n){return String(n).padStart(2,'0')}
+
+function updateClock(){
+  const now=new Date();
+  const ts=`${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+  const ds=`${PL_DAYS[now.getDay()]}, ${now.getDate()} ${PL_MONTHS[now.getMonth()]} ${now.getFullYear()}`;
+  const ds_short=`${pad(now.getDate())}.${pad(now.getMonth()+1)}.${now.getFullYear()}`;
+
+  document.getElementById("tb-time").textContent=ts;
+  document.getElementById("tb-date").textContent=ds_short;
+  document.getElementById("big-time").textContent=ts;
+  document.getElementById("big-date").textContent=ds;
+  document.getElementById("big-day").textContent=greet();
+}
+updateClock();
+setInterval(updateClock,1000);
+
+/* ══════════════════════════════════════════════════
+   DAILY CHECKLIST + STREAK
+══════════════════════════════════════════════════ */
+const DAILY_TASKS=[
+  {id:"cw",   label:"⚔️  Codewars – 3 katy",          time:"20 min"},
+  {id:"anki", label:"🔁  Anki – powtórka fiszek",       time:"10 min"},
+  {id:"code", label:"💻  Sesja kodowania (kurs/projekt)",time:"1–2h"},
+  {id:"commit",label:"📤  GitHub commit",                time:"5 min"},
+  {id:"read", label:"📖  Przeczytaj 1 artykuł devowy",  time:"10 min"},
+  {id:"plan", label:"📝  Zaplanuj jutrzejszą sesję",     time:"5 min"},
+  {id:"water",label:"💧  Nawodnienie przez cały dzień",  time:"cały dzień"},
+];
+
+function todayKey(){
+  const d=new Date();
+  return`cl-${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+}
+
+function loadChecklist(){
+  const key=todayKey();
+  const saved=JSON.parse(localStorage.getItem(key)||"{}");
+  return saved;
+}
+
+function saveChecklist(data){
+  const key=todayKey();
+  localStorage.setItem(key,JSON.stringify(data));
+}
+
+function updateStreak(){
+  // count consecutive days with all tasks done
+  let streak=0;
+  const now=new Date();
+  for(let i=1;i<=365;i++){
+    const d=new Date(now);
+    d.setDate(d.getDate()-i);
+    const k=`cl-${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+    const day=JSON.parse(localStorage.getItem(k)||"{}");
+    const done=Object.values(day).filter(Boolean).length;
+    if(done>=DAILY_TASKS.length){streak++;}else break;
+  }
+  // check today
+  const todayDone=Object.values(loadChecklist()).filter(Boolean).length;
+  const el=document.getElementById("streak-badge");
+  const txt=document.getElementById("streak-txt");
+  if(todayDone>=DAILY_TASKS.length){streak++;}
+  el.textContent=`🔥 ${streak} ${streak===1?"dzień":"dni"}`;
+  if(streak===0)txt.textContent="Zacznij dzisiaj!";
+  else if(streak<7)txt.textContent="Dobry start! Utrzymaj!";
+  else if(streak<30)txt.textContent="Świetna seria! 💪";
+  else txt.textContent="Jesteś niesamowity! 🚀";
+}
+
+function renderChecklist(){
+  const data=loadChecklist();
+  const el=document.getElementById("checklist-items");
+  el.innerHTML=DAILY_TASKS.map(t=>{
+    const done=!!data[t.id];
+    return`<div class="check-item ${done?'done':''}" onclick="toggleCheck('${t.id}')">
+      <div class="check-box">${done?'✓':''}</div>
+      <div class="check-lbl">${t.label}</div>
+      <div class="check-time">${t.time}</div>
+    </div>`;
+  }).join("");
+  const doneCount=Object.values(data).filter(Boolean).length;
+  const pct=Math.round(doneCount/DAILY_TASKS.length*100);
+  document.getElementById("cl-prog").textContent=`${doneCount}/${DAILY_TASKS.length}`;
+  document.getElementById("cl-bar").style.width=pct+"%";
+  updateStreak();
+
+  // notify if all done
+  if(doneCount===DAILY_TASKS.length){
+    sendNotif("🎉 Dzień ukończony!","Wszystkie zadania odhaczone. Świetna robota! Streak rośnie 🔥");
+  }
+}
+
+function toggleCheck(id){
+  const data=loadChecklist();
+  data[id]=!data[id];
+  saveChecklist(data);
+  renderChecklist();
+
+  // notify individual task
+  const task=DAILY_TASKS.find(t=>t.id===id);
+  if(data[id]&&task){
+    sendNotif("✅ Zadanie ukończone",task.label.replace(/^[^\s]+\s+/,''));
+  }
+}
+
+function resetChecklist(){
+  if(!confirm("Zresetować listę? Robi się to automatycznie o północy."))return;
+  localStorage.removeItem(todayKey());
+  renderChecklist();
+}
+
+/* ══════════════════════════════════════════════════
+   NOTIFICATIONS
+══════════════════════════════════════════════════ */
+let notifGranted=false;
+
+async function requestNotif(){
+  if(!("Notification" in window)){
+    alert("Twoja przeglądarka nie obsługuje powiadomień.");return;
+  }
+  const perm=await Notification.requestPermission();
+  notifGranted=(perm==="granted");
+  const btn=document.getElementById("notif-btn");
+  if(notifGranted){
+    btn.textContent="🔔 Włączone";
+    btn.classList.add("granted");
+    sendNotif("🚀 DevPath","Powiadomienia włączone! Będziesz przypominany o sesjach.");
+    scheduleReminders();
+  }else{
+    btn.textContent="🔕 Zablokowane";
+  }
+}
+
+function sendNotif(title,body){
+  if(!notifGranted||Notification.permission!=="granted")return;
+  try{new Notification(title,{body,icon:"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='16' fill='%237c6fff'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='central' text-anchor='middle' font-size='18' fill='white'%3E🚀%3C/text%3E%3C/svg%3E"});}
+  catch(e){}
+}
+
+function scheduleReminders(){
+  // remind at 19:00 if not all done
+  function checkEvening(){
+    const now=new Date();
+    if(now.getHours()===19&&now.getMinutes()===0){
+      const data=loadChecklist();
+      const done=Object.values(data).filter(Boolean).length;
+      if(done<DAILY_TASKS.length){
+        sendNotif("⏰ Wieczorne przypomnienie",`Masz jeszcze ${DAILY_TASKS.length-done} zadań do odhaczenia. Nie przerywaj streaka!`);
+      }
+    }
+    // Codewars reminder at 09:00
+    if(now.getHours()===9&&now.getMinutes()===0){
+      sendNotif("⚔️ Czas na Codewars!","Rozwiąż 3 katy przed innymi zadaniami. Active recall FTW!");
+    }
+    // commit reminder at 21:00
+    if(now.getHours()===21&&now.getMinutes()===0){
+      const data=loadChecklist();
+      if(!data["commit"]){
+        sendNotif("📤 Pamiętaj o commicie!","Każdy dzień bez commitu to przerwany streak na GitHub.");
+      }
+    }
+  }
+  setInterval(checkEvening,60000);
+}
+
+// Check if already granted
+if(Notification.permission==="granted"){
+  notifGranted=true;
+  const btn=document.getElementById("notif-btn");
+  btn.textContent="🔔 Włączone";
+  btn.classList.add("granted");
+  scheduleReminders();
+}
+
+/* ══════════════════════════════════════════════════
+   DATA – PHASES
+══════════════════════════════════════════════════ */
+const PHASES=[
+{week:"Ukończone ✓",name:"Stage 0 – Podstawy HTML/CSS/JS",done:true,
+ tags:[{l:"HTML",c:"#f97316"},{l:"CSS",c:"#3b82f6"},{l:"JS Intro",c:"#eab308"}],
+ goal:"Fundament ukończony: responsywne strony i pierwsze kroki w JavaScript.",
+ resources:[
+  {name:"Responsive Web Design",src:"freeCodeCamp",type:"course",free:true,tags:["HTML","CSS","RWD"]},
+  {name:"Intro to JavaScript",src:"JetBrains Academy ★",type:"ide",free:false,pack:true,tags:["JS","Podstawy"]},
+ ]},
+{week:"Week 1–12 · Mar–Jun 2026",name:"Stage 1 – JavaScript w głąb",active:true,
+ tags:[{l:"JS",c:"#eab308"},{l:"DOM",c:"#3b82f6"},{l:"Async",c:"#a855f7"},{l:"Algorytmy",c:"#ec4899"}],
+ goal:"Solidne podstawy JS: DOM, zdarzenia, fetch, async/await, ES6+, algorytmy. Codewars 8→5 kyu równolegle codziennie.",
+ resources:[
+  {name:"JavaScript.info – pełny kurs",src:"JavaScript.info",type:"course",free:true,tags:["JS","DOM","Async","ES6+"]},
+  {name:"The Odin Project – JS Path",src:"The Odin Project",type:"course",free:true,tags:["JS","Git","Node intro"]},
+  {name:"Frontend Masters – JS Deep Dive",src:"Frontend Masters ★ Pack",type:"course",free:false,pack:true,tags:["Closures","Prototypes","Patterns"]},
+  {name:"JetBrains Academy – JS Track",src:"JetBrains ★ Pack",type:"ide",free:false,pack:true,tags:["JS w IDE","Zadania"]},
+  {name:"freeCodeCamp – JS Algorithms & DS",src:"freeCodeCamp",type:"course",free:true,tags:["Algorytmy","Certyfikat"]},
+  {name:"Exercism.io – JS Track",src:"Exercism ★ Pack",type:"practice",free:false,pack:true,tags:["TDD","Mentoring"]},
+ ],
+ project:"Todo App PWA – Vanilla JS + localStorage + GitHub Pages"},
+{week:"Week 13–22 · Jul–Sep 2026",name:"Stage 2 – React & UI/UX",
+ tags:[{l:"React",c:"#61dafb"},{l:"TypeScript",c:"#3b82f6"},{l:"Tailwind",c:"#06b6d4"},{l:"Figma",c:"#a855f7"}],
+ goal:"React od JSX do zaawansowanych hooków. Tailwind CSS. Pierwsze projekty z Figma. Deploy Vercel.",
+ resources:[
+  {name:"React Official Docs – react.dev",src:"react.dev",type:"course",free:true,tags:["React","JSX","Hooki"]},
+  {name:"Scrimba – Learn React",src:"Scrimba ★ Pack",type:"course",free:false,pack:true,tags:["React","Interaktywnie"]},
+  {name:"Frontend Masters – React Path",src:"Frontend Masters ★ Pack",type:"course",free:false,pack:true,tags:["React","TypeScript","Testing"]},
+  {name:"The Odin Project – React",src:"The Odin Project",type:"course",free:true,tags:["React","Router","State"]},
+  {name:"Google UX Design Certificate",src:"Google / Coursera",type:"course",free:false,tags:["Figma","UX","Wireframing"]},
+  {name:"Tailwind CSS Docs + Play",src:"tailwindcss.com",type:"course",free:true,tags:["Utility-first CSS"]},
+ ],
+ project:"Toolbox Website (7 narzędzi) + Weather Dashboard – React + API + Vercel"},
+{week:"Week 23–32 · Oct–Dec 2026",name:"Stage 3 – Backend & Bazy danych",
+ tags:[{l:"Node.js",c:"#22c55e"},{l:"Express",c:"#78716c"},{l:"PostgreSQL",c:"#3b82f6"},{l:"MongoDB",c:"#22c55e"}],
+ goal:"REST API, JWT auth, SQL i NoSQL, ORM (Prisma). Pierwsza full-stack aplikacja produkcyjna z deploy Railway.",
+ resources:[
+  {name:"The Odin Project – NodeJS",src:"The Odin Project",type:"course",free:true,tags:["Node.js","Express","SQL"]},
+  {name:"freeCodeCamp – Back End APIs",src:"freeCodeCamp",type:"course",free:true,tags:["Node","Express","MongoDB"]},
+  {name:"JetBrains Academy – Node.js Track",src:"JetBrains ★ Pack",type:"ide",free:false,pack:true,tags:["Node.js","WebStorm"]},
+  {name:"MongoDB University – M001+M103",src:"MongoDB University",type:"course",free:true,tags:["MongoDB","Atlas"]},
+  {name:"Educative – System Design",src:"Educative ★ Pack",type:"course",free:false,pack:true,tags:["Architektura","API Design"]},
+  {name:"DataGrip – SQL w IDE",src:"JetBrains ★ Pack",type:"ide",free:false,pack:true,tags:["SQL","PostgreSQL"]},
+ ],
+ project:"Blog Full-Stack CMS + API rezerwacji dla gabinetu lekarskiego"},
+{week:"Week 33–40 · Jan–Mar 2027",name:"Stage 4 – DevOps & TypeScript",
+ tags:[{l:"Docker",c:"#2563eb"},{l:"CI/CD",c:"#22c55e"},{l:"Testing",c:"#ec4899"},{l:"TypeScript",c:"#3b82f6"}],
+ goal:"GitHub Actions, Docker basics, Jest/Vitest, TypeScript w całości, Sentry monitoring, code review workflow.",
+ resources:[
+  {name:"GitHub Actions – oficjalna doku",src:"GitHub",type:"course",free:true,tags:["CI/CD","Automation"]},
+  {name:"Frontend Masters – TypeScript",src:"Frontend Masters ★ Pack",type:"course",free:false,pack:true,tags:["TypeScript","Generics"]},
+  {name:"Docker Getting Started",src:"Docker Docs",type:"course",free:true,tags:["Docker","Containers"]},
+  {name:"Sentry – monitoring błędów",src:"Sentry ★ Pack",type:"tool",free:false,pack:true,tags:["Monitoring","APM"]},
+  {name:"Vitest + Testing Library",src:"vitest.dev",type:"course",free:true,tags:["Testing","TDD","React"]},
+  {name:"GitHub Foundations Cert.",src:"GitHub ★ Pack (voucher)",type:"course",free:false,pack:true,tags:["Certyfikat","CV"]},
+ ],
+ project:"E-commerce Store – full TypeScript + Stripe + testy + GitHub Actions CI/CD"},
+{week:"Week 40+ · od Apr 2027",name:"Stage 5 – Portfolio, Freelance & SaaS",
+ tags:[{l:"Next.js",c:"#e2e8f0"},{l:"SaaS",c:"#a855f7"},{l:"Freelance",c:"#eab308"},{l:"SEO",c:"#22c55e"}],
+ goal:"Portfolio v2 w Next.js, pierwsze zlecenia Upwork/JustJoinIT, micro-SaaS z Stripe Subscriptions.",
+ resources:[
+  {name:"Next.js oficjalna doku + App Router",src:"nextjs.org",type:"course",free:true,tags:["Next.js","SSR","RSC"]},
+  {name:"Tech Interview Handbook",src:"techinterviewhandbook.org",type:"course",free:true,tags:["Rekrutacja","Behavioral"]},
+  {name:"Frontend Interview Handbook",src:"frontendinterviewhandbook.com",type:"course",free:true,tags:["CSS","JS","React Q&A"]},
+  {name:"CS50 Harvard – Computer Science",src:"Harvard / edX (audyt gratis)",type:"course",free:true,tags:["CS","Algorytmy","C"]},
+  {name:"Gumroad – sprzedaż szablonów",src:"gumroad.com",type:"tool",free:true,tags:["Pasywny dochód"]},
+ ],
+ project:"Portfolio v2 Next.js + Micro-SaaS z Stripe (generator faktur lub toolbox PRO)"},
+];
+
+/* ══════════════════════════════════════════════════
+   DATA – PROJECTS
+══════════════════════════════════════════════════ */
+const K_STAGES=[
+  {id:"now",      label:"🔥 Zacznij TERAZ",         bg:"#fef9c310",ac:"#eab308",tx:"#fbbf24"},
+  {id:"adsense",  label:"📈 AdSense & Narzędzia",   bg:"#22c55e10",ac:"#22c55e",tx:"#4ade80"},
+  {id:"health",   label:"💊 Zdrowie & Farmacja",    bg:"#f43f5e10",ac:"#f43f5e",tx:"#fb7185"},
+  {id:"biz",      label:"💼 Biznes & Finanse",      bg:"#3b82f610",ac:"#3b82f6",tx:"#60a5fa"},
+  {id:"freelance",label:"🤝 Freelance",             bg:"#a855f710",ac:"#a855f7",tx:"#c084fc"},
+  {id:"saas",     label:"⚡ SaaS & Pasywny",        bg:"#f9731610",ac:"#f97316",tx:"#fb923c"},
+];
+
+const ST={
+  "not-started":{l:"Nie rozpoczęte",c:"#71717a",bg:"#71717a20"},
+  "in-progress": {l:"W trakcie",     c:"#3b82f6",bg:"#3b82f620"},
+  "completed":   {l:"Ukończone",     c:"#22c55e",bg:"#22c55e20"},
+};
+
+const STAGE_META={
+  "0":{label:"Stage 0",color:"#22c55e"},
+  "1":{label:"Stage 1",color:"#3b82f6"},
+  "2":{label:"Stage 2",color:"#a855f7"},
+  "3":{label:"Stage 3",color:"#f97316"},
+  "4":{label:"Stage 4",color:"#ec4899"},
+  "5":{label:"Stage 5",color:"#eab308"},
+};
+
+let projects=[
+  // NOW
+  {id:1,stage:"now",cat:"freelance",
+   title:"Portfolio v1 – wizytówka + mini-narzędzia",
+   status:"not-started",week:"Week 1–3 (TERAZ!)",
+   stack:"HTML + CSS + Vanilla JS → GitHub Pages",url:"https://pages.github.com",
+   tags:["HTML","CSS","SEO"],
+   reqStage:"0",
+   reqSkills:["HTML semantyczny","CSS Flexbox/Grid","Podstawy JS","Git + GitHub","GitHub Pages deploy"],
+   earn:"Bez portfolio nie ma zleceń. Sekcje: O mnie, Projekty, Kontakt + 3–4 mini-narzędzia (QR, Password Gen, Color Picker). Domena .me z Namecheap ★ Pack. Cel: pierwsze zlecenie $200–500 jeszcze w trakcie nauki."},
+
+  {id:2,stage:"now",cat:"adsense",
+   title:"Toolbox Website – 7 narzędzi webowych",
+   status:"not-started",week:"Week 4–8 (priorytet!)",
+   stack:"Vanilla JS → GitHub Pages → Google AdSense",url:"https://github.com",
+   tags:["JS","SEO","Tools"],
+   reqStage:"1",
+   reqSkills:["DOM manipulation","localStorage","Funkcje JS","Obsługa formularzy","Routing (multi-page)","SEO basics (meta tagi)"],
+   earn:"QR Generator (1M wyszukiwań/mies), Word Counter (800k), Password Gen (500k). Każde narzędzie = osobna /tools/nazwa z własnym title i meta. AdSense po ~3 mies. ruchu: $50–200/mies. Sprzedaż toolboxów klientom: $200–500/szt."},
+
+  // ADSENSE
+  {id:3,stage:"adsense",cat:"adsense",
+   title:"Kalkulator kalorii & TDEE",
+   status:"not-started",week:"Week 4–5",
+   stack:"Vanilla JS → GitHub Pages",url:"https://github.com",
+   tags:["Zdrowie","Kalkulator"],
+   reqStage:"1",
+   reqSkills:["Formularze JS","Obliczenia matematyczne w JS","DOM updates","localStorage (historia)"],
+   earn:"'Calorie calculator' = 800k wyszukiwań/mies. Reklamy suplementów CPC $3–16. Jeden kalkulator może generować $30–150/mies pasywnie po roku działania."},
+
+  {id:4,stage:"adsense",cat:"adsense",
+   title:"Kalkulator ZUS i podatków PL",
+   status:"not-started",week:"Week 6–8",
+   stack:"Vanilla JS → GitHub Pages",url:"https://github.com",
+   tags:["ZUS","Podatki","PL"],
+   reqStage:"1",
+   reqSkills:["Formularze JS","Logika warunkowa","Formatowanie liczb (Intl)","Eksport do PDF (opcjonalnie)"],
+   earn:"'Kalkulator ZUS 2026' = 200k+ wyszukiwań PL. Finanse = CPC $10–30. Afiliacja biur rachunkowych $20–50/lead, inFakt i wFirma płacą za rejestracje."},
+
+  {id:5,stage:"adsense",cat:"adsense",
+   title:"Blog techniczny – dev notes po polsku",
+   status:"not-started",week:"Równolegle od Etap 1",
+   stack:"Next.js + MDX → Vercel",url:"https://nextjs.org",
+   tags:["Blog","SEO","Brand"],
+   reqStage:"2",
+   reqSkills:["React basics","Next.js App Router","MDX/Markdown","SEO meta tags","Deploy Vercel"],
+   earn:"Pisz o tym czego się uczysz. Google indeksuje devów piszcych regularnie. AdSense + sponsorzy + afiliacja = $200–2000+/mies długoterminowo. Personal brand = klienci przychodzą sami."},
+
+  {id:6,stage:"adsense",cat:"adsense",
+   title:"Porównywarka suplementów + afiliacja",
+   status:"not-started",week:"Etap 2",
+   stack:"React + JSON data → Vercel",url:"https://github.com",
+   tags:["Suplementy","Afiliacja","React"],
+   reqStage:"2",
+   reqSkills:["React components","Props i state","Filter/sort funkcje","Fetch (opcjonalnie API)","Tailwind CSS"],
+   earn:"Porównaj: wit. D, omega-3, magnez, kreatyna. DOZ.pl + Apteka.pl mają programy afiliacyjne (3–8% prowizji). AdSense + afiliacja = 2× zarobki z tego samego ruchu."},
+
+  // ZDROWIE
+  {id:7,stage:"health",cat:"health",
+   title:"Portal kalkulatorów zdrowotnych",
+   status:"not-started",week:"Week 4–8",
+   stack:"Vanilla JS → GitHub Pages",url:"https://github.com",
+   tags:["BMI","Nawodnienie","Tętno"],
+   reqStage:"1",
+   reqSkills:["Formularze JS","DOM manipulation","Math obliczenia","localStorage","CSS responsywny"],
+   earn:"BMI (1M), Tracker cyklu (600k), Nawodnienie (300k), Tętno (250k). Każdy na osobnej stronie. CPC reklam zdrowotnych: $3–16. Potencjał: $100–500/mies AdSense po roku."},
+
+  {id:8,stage:"health",cat:"health",
+   title:"Słownik leków – encyklopedia farmaceutyczna",
+   status:"not-started",week:"Etap 2 (React)",
+   stack:"React + OpenFDA API (bezpłatny)",url:"https://open.fda.gov/apis/",
+   tags:["Farmacja","OpenFDA","SEO"],
+   reqStage:"2",
+   reqSkills:["React Router (dynamic routes)","Fetch/async-await","useEffect + useState","URL params","SEO (meta per page)"],
+   earn:"Każdy lek = osobna strona z OpenFDA API. 'Ibuprofen dawkowanie', 'paracetamol skutki uboczne' — tysiące long-tail keywords. Reklamy aptek online = wysoki CPC."},
+
+  {id:9,stage:"health",cat:"health",
+   title:"Portal dyżurów aptek – lokalne SEO",
+   status:"not-started",week:"Etap 2",
+   stack:"React + dane NFZ/GUS → Vercel",url:"https://github.com",
+   tags:["Farmacja","Lokalne SEO"],
+   reqStage:"2",
+   reqSkills:["React + filtering","Geolokalizacja (Geolocation API)","Fetch danych zewnętrznych","Lokalny SEO (schema.org)"],
+   earn:"'Apteka dyżurna [miasto]' = ogromny ruch lokalny. AdSense lokalne (wyższy CPC) + afiliacja DOZ/Gemini + subskrypcja dla aptek $29–79/mies."},
+
+  {id:10,stage:"health",cat:"health",
+   title:"Aplikacja przypomnień o lekach – PWA",
+   status:"not-started",week:"Etap 2",
+   stack:"React PWA + Push Notifications + Supabase",url:"https://github.com",
+   tags:["PWA","Push Notifications"],
+   reqStage:"2",
+   reqSkills:["React hooks (zaawansowane)","Service Worker / PWA","Push Notifications API","Supabase (auth + db)","Stripe Subscriptions (PRO)"],
+   earn:"Freemium: 3 leki gratis, PRO = $2.99/mies. B2C SaaS z niskim churnem — użytkownicy potrzebują przypomnień codziennie."},
+
+  {id:11,stage:"health",cat:"health",
+   title:"System rezerwacji wizyt lekarskich",
+   status:"not-started",week:"Etap 3+ (Full Stack)",
+   stack:"React + Node.js + PostgreSQL + Stripe",url:"https://github.com",
+   tags:["SaaS","B2B","Telehealth"],
+   reqStage:"3",
+   reqSkills:["Express REST API","JWT autoryzacja","PostgreSQL + Prisma","React Query","Stripe payments","Email (nodemailer/Resend)"],
+   earn:"Małe kliniki płacą za software. $29–99/mies per gabinet. 20 klientów = $580–1980 MRR. Freelance budowa systemu = $1500–4000 zlecenie."},
+
+  // BIZNES
+  {id:12,stage:"biz",cat:"biz",
+   title:"Generator faktur online – PL (NIP, VAT)",
+   status:"not-started",week:"Etap 2–3",
+   stack:"React + Node.js + PDF-lib + Stripe",url:"https://github.com",
+   tags:["Faktury","SaaS","PDF"],
+   reqStage:"2",
+   reqSkills:["React forms (React Hook Form)","PDF-lib lub jsPDF","Node.js basics (opcjonalnie)","Stripe Subscriptions","localStorage / Supabase"],
+   earn:"Bezpłatna = AdSense. PRO ($9/mies) = logo, historia, eksport, NIP/VAT. 100 użytkowników PRO = $900 MRR."},
+
+  {id:13,stage:"biz",cat:"biz",
+   title:"Porównywarka ubezpieczeń – afiliacja",
+   status:"not-started",week:"Etap 2",
+   stack:"React + API ubezpieczycieli → Vercel",url:"https://github.com",
+   tags:["Ubezpieczenia","Lead gen"],
+   reqStage:"2",
+   reqSkills:["React forms + filtering","Fetch API","URL query params","SEO meta tags","Afiliacja integracja (linki + tracking)"],
+   earn:"Najwyższe CPC AdSense ($10–30). Afiliacja = $20–80 prowizji za lead. 10 leadów dziennie = $200–800/dzień."},
+
+  {id:14,stage:"biz",cat:"biz",
+   title:"Generator umów i dokumentów PL",
+   status:"not-started",week:"Etap 2",
+   stack:"React + PDF-lib → Vercel",url:"https://github.com",
+   tags:["Umowy","PDF","Freelancerzy"],
+   reqStage:"2",
+   reqSkills:["React forms","jsPDF lub PDF-lib","Template strings JS","Download Blob API"],
+   earn:"Generuj: umowę o dzieło, zlecenie, NDA, regulamin sklepu. PRO = $5–15/mies."},
+
+  {id:15,stage:"biz",cat:"biz",
+   title:"Kalkulator wyceny projektu freelance",
+   status:"not-started",week:"Week 3–4",
+   stack:"Vanilla JS → GitHub Pages",url:"https://github.com",
+   tags:["Freelance","Wycena"],
+   reqStage:"1",
+   reqSkills:["Formularze JS","Obliczenia z zakresami","DOM updates","localStorage"],
+   earn:"'Jak wycenić stronę internetową' = duży ruch SEO. AdSense + afiliacja kursów. Budujesz w 1 dzień."},
+
+  // FREELANCE
+  {id:16,stage:"freelance",cat:"freelance",
+   title:"Client Landing Page Template – sprzedawalny",
+   status:"not-started",week:"Week 25–28",
+   stack:"HTML/CSS/JS → Gumroad / ThemeForest",url:"https://gumroad.com",
+   tags:["Template","Landing"],
+   reqStage:"2",
+   reqSkills:["Zaawansowany CSS (animacje)","CSS Variables","JS interaktywność","Responsywny design","Performance (Lighthouse 90+)"],
+   earn:"Sprzedaj na Gumroad/ThemeForest $19–79. 100 sprzedaży = $1900–7900 pasywnie."},
+
+  {id:17,stage:"freelance",cat:"freelance",
+   title:"E-commerce Store – sklep z Stripe",
+   status:"not-started",week:"Week 18–24",
+   stack:"React + Node.js + Stripe + PostgreSQL",url:"https://stripe.com",
+   tags:["Sklep","Stripe","Full Stack"],
+   reqStage:"3",
+   reqSkills:["React (zaawansowany)","Node.js + Express","Stripe Checkout + Webhooks","PostgreSQL + Prisma","Auth (NextAuth lub JWT)","Deploy (Vercel + Railway)"],
+   earn:"Stawki: $800–3000+ za sklep. Stripe = top umiejętność na rynku. Sprzedaj własne produkty cyfrowe bez prowizji Etsy."},
+
+  {id:18,stage:"freelance",cat:"freelance",
+   title:"Portfolio v2 – Next.js + case studies + blog",
+   status:"not-started",week:"Week 25–28",
+   stack:"Next.js + MDX → Vercel",url:"https://nextjs.org",
+   tags:["Next.js","SSR","Portfolio"],
+   reqStage:"3",
+   reqSkills:["Next.js App Router","MDX content","Dynamic OG images","ISR/SSR","TypeScript","Framer Motion (opcjonalnie)"],
+   earn:"Next.js = wyższe stawki ($35–80/h). SSR = portfolio widoczne w Google. Sprzedaj template innym devom $29–79."},
+
+  // SAAS
+  {id:19,stage:"saas",cat:"saas",
+   title:"Micro-SaaS – generator faktur z subskrypcją",
+   status:"not-started",week:"Etap 3+",
+   stack:"React + Node.js + Stripe Subscriptions + PostgreSQL",url:"https://stripe.com",
+   tags:["SaaS","MRR","Stripe"],
+   reqStage:"3",
+   reqSkills:["Stripe Subscriptions + Customer Portal","JWT + refresh tokens","PostgreSQL + wielodostęp","React dashboard","Email (Resend/Postmark)","Railway deploy"],
+   earn:"CEL KOŃCOWY. $9/mies per user. 50 = $450 MRR. 200 = $1800 MRR. Zacznij od Toolboxu i rozwiń najpopularniejsze narzędzie w płatny SaaS."},
+
+  {id:20,stage:"saas",cat:"saas",
+   title:"Newsletter + blog – Ghost membership",
+   status:"not-started",week:"Równolegle Etap 2+",
+   stack:"Ghost CMS (open source) → własny hosting",url:"https://ghost.org",
+   tags:["Newsletter","Membership"],
+   reqStage:"2",
+   reqSkills:["Ghost CMS self-hosting","Linux/VPS basics (DigitalOcean ★ Pack)","DNS + domena","Stripe integracja Ghost","Email newsletter basics"],
+   earn:"Ghost = wbudowana płatna subskrypcja. $5/mies płatna wersja. 500 płatnych = $2500 MRR."},
+
+  {id:21,stage:"saas",cat:"saas",
+   title:"Sprawdzarka interakcji leków – SaaS",
+   status:"not-started",week:"Etap 2–3",
+   stack:"React + OpenFDA API + Node.js (PRO)",url:"https://open.fda.gov/apis/",
+   tags:["Farmacja","API","React"],
+   reqStage:"2",
+   reqSkills:["React (dynamiczne routing)","OpenFDA API (fetch)","Debounce + autocomplete","Node.js (PRO tier)","Stripe (opcjonalnie)"],
+   earn:"'Drug interaction checker' = 700k wyszukiwań/mies. Wersja PRO dla farmaceutów. Reklamy aptek = CPC $5–20."},
+
+  {id:22,stage:"saas",cat:"saas",
+   title:"CRM dla salonów / małych firm",
+   status:"not-started",week:"Etap 3+",
+   stack:"React + Node.js + PostgreSQL + Stripe",url:"https://github.com",
+   tags:["CRM","B2B","Branżowy"],
+   reqStage:"3",
+   reqSkills:["Full Stack (React + Node)","PostgreSQL (multi-tenant)","Role/permissions","Stripe Subscriptions","Email + przypomnienia","Calendar/booking logic"],
+   earn:"$19–49/mies per firma. Skup się na 1 branży (np. salony kosmetyczne). 50 klientów = $950–2450 MRR."},
+];
+
+/* ══════════════════════════════════════════════════
+   RENDER TIMELINE
+══════════════════════════════════════════════════ */
+function renderTimeline(){
+  const tl=document.getElementById("timeline");
+  tl.innerHTML=PHASES.map((p,i)=>{
+    const cls=[p.done?"done":"",p.active?"active":""].filter(Boolean).join(" ");
+    const tagHtml=p.tags.map(t=>`<span class="ptag" style="background:${t.c}20;color:${t.c}">${t.l}</span>`).join("");
+    const resHtml=p.resources.map(r=>{
+      const badge=r.free?`<span class="rb rb-free">gratis</span>`:r.pack?`<span class="rb rb-pack">★ Pack</span>`:`<span class="rb rb-paid">płatny</span>`;
+      return`<div class="rc type-${r.type}">
+        <div class="rc-name">${r.name}</div>
+        <div class="rc-src">${r.src}</div>
+        <div class="rc-bdgs">${badge}${r.tags.map(t=>`<span class="rb" style="background:var(--bg4);color:var(--muted)">${t}</span>`).join("")}</div>
+      </div>`;
+    }).join("");
+    const projHtml=p.project?`<div class="ph-proj"><div class="ph-proj-lbl">🚀 Projekt zamykający fazę</div><div class="ph-proj-val">${p.project}</div></div>`:"";
+    return`<div class="phase ${cls}" style="animation-delay:${i*.06}s">
+      <div class="ph-hdr" onclick="togglePhase(this.parentElement)">
+        <div class="ph-dot">${p.done?"✓":"●"}</div>
+        <div class="ph-meta">
+          <div class="ph-week">${p.week}</div>
+          <div class="ph-name">${p.name}</div>
+          <div class="ph-tags">${tagHtml}</div>
+        </div>
+        <div class="ph-chev">›</div>
+      </div>
+      <div class="ph-body">
+        <p style="font-size:11.5px;color:var(--muted);line-height:1.6;margin-bottom:4px">${p.goal}</p>
+        <div class="res-grid">${resHtml}</div>
+        ${projHtml}
+      </div>
+    </div>`;
+  }).join("");
+  // Open first
+  const first=tl.querySelector(".phase");
+  if(first)first.classList.add("open");
+}
+
+function togglePhase(el){
+  const wasOpen=el.classList.contains("open");
+  document.querySelectorAll(".phase.open").forEach(p=>p.classList.remove("open"));
+  if(!wasOpen)el.classList.add("open");
+}
+
+/* ══════════════════════════════════════════════════
+   RENDER KANBAN
+══════════════════════════════════════════════════ */
+let pCat="all",pSt="all";
+
+function renderKanban(){
+  const fil=projects.filter(p=>{
+    if(pCat!=="all"&&p.cat!==pCat)return false;
+    if(pSt!=="all"&&p.status!==pSt)return false;
+    return true;
+  });
+  document.getElementById("kanban").innerHTML=K_STAGES.map(s=>{
+    const cols=fil.filter(p=>p.stage===s.id);
+    return`<div class="k-col">
+      <div class="k-col-hdr" style="background:${s.bg};border-color:${s.ac}33">
+        <span class="k-col-ttl" style="color:${s.tx}">${s.label}</span>
+        <span class="k-col-cnt" style="background:${s.ac}">${cols.length}</span>
+      </div>
+      <div>${cols.length===0?`<div class="k-empty">Brak projektów</div>`:cols.map(p=>kCardH(p,s.ac)).join("")}</div>
+    </div>`;
+  }).join("");
+}
+
+function kCardH(p,ac){
+  const s=ST[p.status];
+  const sm=STAGE_META[p.reqStage]||{label:"Stage "+p.reqStage,color:"#71717a"};
+  return`<div class="k-card" onclick="openMod(${p.id})">
+    <style>.k-card:nth-child(n):hover::before{background:${ac}!important;opacity:1!important}</style>
+    <div class="k-stage-pill" style="background:${sm.color}20;color:${sm.color};border:1px solid ${sm.color}30">
+      📋 wymaga ${sm.label}
+    </div>
+    <div class="k-card-ttl">${p.title}</div>
+    <div class="k-badges">
+      <span class="kb" style="background:${s.bg};color:${s.c}">
+        <span style="display:inline-block;width:4px;height:4px;border-radius:50%;background:${s.c};margin-right:3px;vertical-align:middle"></span>${s.l}
+      </span>
+      <span class="earn-kb">💰</span>
+    </div>
+    <div class="k-ft">
+      <span class="k-dt">${p.week}</span>
+      <div class="k-tags">${p.tags.slice(0,2).map(t=>`<span class="k-tag">${t}</span>`).join("")}</div>
+    </div>
+  </div>`;
+}
+
+/* ══════════════════════════════════════════════════
+   MODAL
+══════════════════════════════════════════════════ */
+function openMod(id){
+  const p=projects.find(x=>x.id===id);if(!p)return;
+  const s=ST[p.status];
+  const sm=STAGE_META[p.reqStage]||{label:"Stage "+p.reqStage,color:"#71717a"};
+
+  document.getElementById("m-ttl").textContent=p.title;
+  document.getElementById("m-src").textContent=p.stack;
+  const ul=document.getElementById("m-url");ul.textContent=p.url;ul.href=p.url;
+  document.getElementById("m-dt").textContent="📅 "+p.week;
+
+  document.getElementById("m-bdg").innerHTML=
+    `<span class="kb" style="background:${s.bg};color:${s.c};font-size:11px;padding:3px 9px">${s.l}</span>`+
+    p.tags.map(t=>`<span class="kb" style="background:var(--bg4);color:var(--muted);font-size:11px;padding:3px 9px">${t}</span>`).join("")+
+    `<span class="earn-kb" style="font-size:11px;padding:3px 9px">💰 Zarobkowy</span>`;
+
+  // PREREQS
+  document.getElementById("m-prereq-stages").innerHTML=
+    `<div class="prereq-stage"><span class="ps-dot" style="background:${sm.color}"></span>${sm.label} ukończony</div>`+
+    `<div class="prereq-stage" style="color:var(--muted);border-color:var(--border)">Wszystkie poprzednie Stage'y</div>`;
+
+  document.getElementById("m-prereq-skills").innerHTML=
+    (p.reqSkills||[]).map(sk=>`<span class="skill-chip">${sk}</span>`).join("");
+
+  document.getElementById("m-earn-txt").textContent=p.earn;
+
+  document.getElementById("m-sbtns").innerHTML=Object.entries(ST).map(([k,v])=>
+    `<button class="sbtn ${p.status===k?"act":""}" style="color:${v.c}" onclick="chSt(${p.id},'${k}')">${v.l}</button>`).join("");
+
+  document.getElementById("ov").classList.add("open");
+}
+
+function chSt(id,ns){
+  projects=projects.map(p=>p.id===id?{...p,status:ns}:p);
+  openMod(id);renderKanban();
+}
+function closeMod(e){if(e.target===document.getElementById("ov"))closeModD()}
+function closeModD(){document.getElementById("ov").classList.remove("open")}
+
+/* ══════════════════════════════════════════════════
+   FILTERS
+══════════════════════════════════════════════════ */
+document.querySelectorAll("[data-cat]").forEach(b=>{
+  b.addEventListener("click",()=>{
+    pCat=b.dataset.cat;
+    document.querySelectorAll("[data-cat]").forEach(x=>x.classList.remove("pon"));
+    b.classList.add("pon");renderKanban();
+  });
+});
+document.querySelectorAll("[data-st]").forEach(b=>{
+  b.addEventListener("click",()=>{
+    pSt=b.dataset.st;
+    document.querySelectorAll("[data-st]").forEach(x=>x.classList.remove("pon"));
+    b.classList.add("pon");renderKanban();
+  });
+});
+
+/* ══════════════════════════════════════════════════
+   TABS
+══════════════════════════════════════════════════ */
+function switchTab(tab,btn){
+  document.querySelectorAll(".pane").forEach(p=>p.classList.remove("show"));
+  document.querySelectorAll(".tab-btn").forEach(b=>b.classList.remove("ap","apr"));
+  document.getElementById("pane-"+tab).classList.add("show");
+  btn.classList.add(tab==="plan"?"ap":"apr");
+}
+
+/* ══════════════════════════════════════════════════
+   INIT
+══════════════════════════════════════════════════ */
+renderTimeline();
+renderKanban();
+renderChecklist();
+</script>
+</body>
+</html>
